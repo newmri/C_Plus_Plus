@@ -1,0 +1,6 @@
+﻿  stdafx.cpp
+  Day03_01.cpp
+  Day03_02.cpp
+  Generating Code...
+Day03_02.obj : error LNK2005: main already defined in Day03_01.obj
+S:\Jusin\C++\ThirdWeek\x64\Debug\Day03.exe : fatal error LNK1169: one or more multiply defined symbols found
