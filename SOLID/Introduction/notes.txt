@@ -1,0 +1,3 @@
+Link to the repository: https://github.com/schostac/CppSOLID.
+It contains the presentations, stand-alone examples and project source code used in this course.
+Feel free to comment, clone, fork and star it as well as to prepare pull requests if you find a bug or place for improvement.
