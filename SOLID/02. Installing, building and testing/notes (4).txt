@@ -1,0 +1,5 @@
+Go to CppSOLID directory
+Create build directory
+From CppSOLID\build run cmake -G “MinGW Makefiles” ..\project\app
+From CppSOLID\build run make
+From CppSOLID\build run make test

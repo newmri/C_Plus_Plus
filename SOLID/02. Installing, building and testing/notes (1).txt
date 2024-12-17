@@ -1,0 +1,6 @@
+Download mingw-*.exe from https://nuwen.net/mingw.html and install MinGW distribution (it has g++, boost libraries and more).
+
+Go to control panel, system, advanced system settings, environment variables and then append to your system path the following paths:
+<where MinGW installed>\MinGW\bin;
+<where MinGW installed>\MinGW\include;
+<where MinGW installed>\MinGW\lib.

@@ -1,0 +1,8 @@
+Clone Google test repository from https://github.com/google/googletest
+Go to googletest directory that you have just cloned
+Create build directory
+From googletest\build run cmake -G “MinGW Makefiles” ..
+From googletest\build run make
+Copy all files from googletest\build\lib into <where MinGW installed>\MinGW\lib
+Copy gtest directory from googletest\googletest\include into <where MinGW installed>\MinGW\include
+Copy gmock directory from googletest\googlemock\include into <where MinGW installed>\MinGW\include

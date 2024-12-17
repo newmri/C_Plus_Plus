@@ -1,0 +1,2 @@
+Install CMake following this tutorial https://cmake.org/install/.
+Remember to select the option for adding CMake to the system path.

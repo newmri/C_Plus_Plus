@@ -1,0 +1,4 @@
+Download or clone the repository from https://github.com/schostac/CppSOLID.
+You will need Git for cloning. See more about how to install it at
+https://git-scm.com/book/en/v2/Getting-Started-Installing-Git.
+You may also fork the repository if you later want to push your changes to GitHub. 
