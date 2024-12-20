@@ -1,0 +1,5 @@
+Install Python3 https://www.python.org/downloads/ if not yet installed
+Go to CppSOLID\build directory
+From CppSOLID\build run cmake ..\project\app
+From CppSOLID\build run make
+Run python3 ..\project\tests\sct\tests.py
