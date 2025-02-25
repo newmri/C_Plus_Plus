@@ -1,0 +1,14 @@
+객체 생성을 캡슐화하여 클라이언트 코드가 객체 생성 방식에 대해 알 필요 없도록 만듬
+
+1. 객체 생성을 분리하여 유지보수성을 높임
+2. 객체의 생성 로직을 캡슐화하여 클라이언트 코드에서 독립적
+3. 인터페이스나 추상 클래스를 활용하여 유연성을 높임
+
+class SimpleFactory {
+public:
+    static std::unique_ptr<Product> createProduct(const std::string& type) {
+        if (type == "A") return std::make_unique<ConcreteProductA>();
+        if (type == "B") return std::make_unique<ConcreteProductB>();
+        return nullptr;
+    }
+};

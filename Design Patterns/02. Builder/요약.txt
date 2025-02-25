@@ -1,0 +1,10 @@
+객체의 생성 과정이 복잡할 때, 단계별로 객체를 구성
+
+1. 생성자 사용 대비 가독성 향상
+2. 보통 체이닝 기법과 같이 사용됨
+
+Product product = Product::Builder()
+                        .setPartA("Engine")
+                        .setPartB("Wheels")
+                        .setPartC("Doors")
+                        .build();

@@ -1,0 +1,21 @@
+객체를 직접 생성하는 것이 아니라, 기존 객체를 복제(clone)하여 새로운 객체를 생성
+
+1. 객체를 복사하여 생성 → new 연산자를 사용하지 않고, 기존 객체를 복제
+2. 객체 생성 비용 절감 → 복잡한 초기화 과정을 거칠 필요 없음
+3. 동적인 객체 생성 → 실행 중에 객체를 생성할 수 있음
+
+class ConcretePrototypeA : public Prototype {
+private:
+    int value;
+
+public:
+    ConcretePrototypeA(int v) : value(v) {}
+
+    std::unique_ptr<Prototype> clone() const override {
+        return std::make_unique<ConcretePrototypeA>(*this); // 복사 생성자 사용
+    }
+
+    void show() const override {
+        std::cout << "ConcretePrototypeA: " << value << std::endl;
+    }
+};

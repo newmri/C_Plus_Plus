@@ -1,0 +1,17 @@
+호환되지 않는 두 개의 인터페이스를 변환하여 함께 작동할 수 있도록 함
+
+1. 호환되지 않는 인터페이스를 연결
+2. 클라이언트 코드 변경 없이 기존 시스템을 확장
+3. 새로운 인터페이스를 기존 인터페이스에 맞게 변환
+
+class Adapter : public Target {
+private:
+    Adaptee* adaptee;  // 기존 클래스를 포함
+public:
+    Adapter(Adaptee* a) : adaptee(a) {}
+
+    void request() const override {
+        std::cout << "Adapter: 변환된 요청 -> ";
+        adaptee->specificRequest(); // Adaptee의 메서드를 호출
+    }
+};
