@@ -1,0 +1,13 @@
+추상적인 부분과 구현 부분을 분리
+
+1. 추상화(Abstraction)와 구현(Implementation)을 분리
+2. 각 계층을 독립적으로 확장 가능
+3. 컴파일 타임의 의존성을 줄이고 런타임에 동적으로 변경 가능
+
+class Circle : public Shape {
+public:
+    Circle(std::shared_ptr<Renderer> r) : Shape(r) {}
+    void draw() override {
+        renderer->renderShape("Circle");
+    }
+};
