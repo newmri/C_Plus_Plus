@@ -1,0 +1,55 @@
+객체를 트리 구조로 구성하여 개별 객체와 그룹 객체를 동일하게 다룰 수 있도록 함
+
+개별 객체(Leaf)와 복합 객체(Composite)를 동일한 인터페이스(또는 추상 클래스)로 다룰 수 있도록 설계함
+클라이언트는 개별 객체와 그룹 객체를 구분하지 않고 사용할 수 있음
+
+// Component: 공통 인터페이스
+class Component {
+public:
+    virtual ~Component() = default;
+    virtual void Operation() const = 0;
+};
+
+// Leaf: 개별 객체
+class Leaf : public Component {
+public:
+    void Operation() const override {
+        std::cout << "Leaf operation\n";
+    }
+};
+
+// Composite: 복합 객체 (여러 Component를 포함)
+class Composite : public Component {
+private:
+    std::vector<std::shared_ptr<Component>> children;
+
+public:
+    void Add(const std::shared_ptr<Component>& component) {
+        children.push_back(component);
+    }
+
+    void Operation() const override {
+        std::cout << "Composite operation:\n";
+        for (const auto& child : children) {
+            child->Operation();
+        }
+    }
+};
+
+int main() {
+    std::shared_ptr<Component> leaf1 = std::make_shared<Leaf>();
+    std::shared_ptr<Component> leaf2 = std::make_shared<Leaf>();
+
+    std::shared_ptr<Composite> composite = std::make_shared<Composite>();
+    composite->Add(leaf1);
+    composite->Add(leaf2);
+
+    std::shared_ptr<Composite> root = std::make_shared<Composite>();
+    root->Add(composite);
+    root->Add(std::make_shared<Leaf>());
+
+    // 모든 객체를 동일한 방식으로 처리 가능
+    root->Operation();
+
+    return 0;
+}
