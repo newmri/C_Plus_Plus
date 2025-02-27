@@ -1,0 +1,28 @@
+ 객체의 기능을 동적으로 추가하거나 확장할 수 있음
+
+1. 구성(composition) 기반의 패턴
+   기존 클래스의 기능을 변경하지 않고 새로운 기능을 추가할 수 있음.
+2. 런타임(dynamic) 확장 가능
+   객체가 생성된 후에도 기능을 추가할 수 있음.
+3. OCP(Open-Closed Principle, 개방-폐쇄 원칙) 준수
+   기존 코드를 수정하지 않고 새로운 기능을 추가할 수 있음.
+
+class Decorator : public Component {
+protected:
+    std::shared_ptr<Component> component; // 구성(Composition)
+public:
+    Decorator(std::shared_ptr<Component> comp) : component(comp) {}
+    void operation() const override {
+        component->operation(); // 기존 기능 유지
+    }
+};
+
+class ConcreteDecoratorA : public Decorator {
+public:
+    ConcreteDecoratorA(std::shared_ptr<Component> comp) : Decorator(comp) {}
+
+    void operation() const override {
+        Decorator::operation(); // 기존 기능 유지
+        std::cout << "추가 기능 A" << std::endl; // 새로운 기능 추가
+    }
+};
