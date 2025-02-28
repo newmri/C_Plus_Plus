@@ -1,0 +1,39 @@
+복잡한 서브시스템을 단순화하고, 일관된 인터페이스를 제공
+
+서브시스템의 복잡성을 숨긴다.
+클라이언트가 단순한 인터페이스만 사용하도록 한다.
+서브시스템을 모듈화하고, 변경을 최소화할 수 있다.
+
+// 서브시스템 1
+class SubsystemA {
+public:
+    void operationA() { std::cout << "SubsystemA: Operation A 실행\n"; }
+};
+
+// 서브시스템 2
+class SubsystemB {
+public:
+    void operationB() { std::cout << "SubsystemB: Operation B 실행\n"; }
+};
+
+// 서브시스템 3
+class SubsystemC {
+public:
+    void operationC() { std::cout << "SubsystemC: Operation C 실행\n"; }
+};
+
+// Facade 클래스
+class Facade {
+private:
+    SubsystemA subsystemA;
+    SubsystemB subsystemB;
+    SubsystemC subsystemC;
+
+public:
+    void simpleOperation() {
+        std::cout << "Facade: 단순화된 인터페이스 실행\n";
+        subsystemA.operationA();
+        subsystemB.operationB();
+        subsystemC.operationC();
+    }
+};
