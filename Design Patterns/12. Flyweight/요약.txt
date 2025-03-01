@@ -1,0 +1,44 @@
+메모리 사용량을 줄이고 객체 생성을 최적화
+동일한 데이터를 공유하는 객체를 재사용하여 중복 객체 생성을 방지
+
+class Monster {
+public:
+    virtual void attack(int x, int y) const = 0;
+};
+
+class Goblin : public Monster {
+public:
+    void attack(int x, int y) const override {
+        std::cout << "Goblin attacks at (" << x << ", " << y << ")\n";
+    }
+};
+
+class MonsterFactory {
+private:
+    std::unordered_map<std::string, std::shared_ptr<Monster>> monsters;
+public:
+    std::shared_ptr<Monster> getMonster(const std::string& type) {
+        if (monsters.find(type) == monsters.end()) {
+            if (type == "Goblin") {
+                monsters[type] = std::make_shared<Goblin>();
+            }
+        }
+        return monsters[type];
+    }
+};
+
+int main() {
+    MonsterFactory factory;
+
+    auto goblin1 = factory.getMonster("Goblin");
+    auto goblin2 = factory.getMonster("Goblin");
+
+    // goblin1과 goblin2는 같은 객체를 공유
+    goblin1->attack(10, 20);
+    goblin2->attack(30, 40);
+
+    std::cout << "goblin1과 goblin2가 같은 객체인지 확인: " 
+              << (goblin1 == goblin2 ? "같음" : "다름") << std::endl;
+
+    return 0;
+}

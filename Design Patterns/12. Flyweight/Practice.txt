@@ -1,0 +1,75 @@
+#include <string>
+#include <iostream>
+#include <sstream>
+#include <vector>
+using namespace std;
+
+struct Sentence
+{
+	struct WordToken
+	{
+		bool capitalize;
+	};
+	struct Word
+	{
+		string word;
+	};
+
+	struct Words
+	{
+		WordToken token;
+		Word word;
+	};
+
+	vector<Words> words;
+
+	Sentence(const string& text)
+	{
+		istringstream iss(text);
+		string word;
+
+		while (iss >> word)
+			words.push_back({false, word});
+	}
+
+	WordToken& operator[](size_t index)
+	{
+		if (index >= words.size())
+			abort();
+
+		return words[index].token;
+	}
+
+	string str() const
+	{
+		string _str;
+
+		if (words.empty())
+			return _str;
+
+		for (const auto& d : words)
+		{
+			for (const auto& ch : d.word.word)
+			{
+				if (d.token.capitalize)
+					_str += toupper(ch);
+				else
+					_str += ch;
+			}
+
+			_str += " ";
+		}
+
+		if(false == _str.empty())
+			_str.pop_back();
+
+		return _str;
+	}
+};
+
+int main()
+{
+	Sentence sentence("hello world");
+	sentence[1].capitalize = true;
+	cout << sentence.str(); // prints "hello WORLD"
+}
