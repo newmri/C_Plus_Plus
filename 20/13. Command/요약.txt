@@ -1,0 +1,94 @@
+요청과 실행을 분리
+저장, 로깅, 실행 취소등에 용이
+
+🔹 Command 패턴의 장점
+✅ 요청과 실행을 분리 → 클라이언트는 수행할 작업에 대한 구체적인 정보를 알 필요 없음
+✅ 실행 취소(Undo) 및 재실행(Redo) 기능을 쉽게 구현 가능
+✅ 명령을 큐에 저장하여 요청을 나중에 실행할 수도 있음
+✅ 새로운 명령을 추가하더라도 기존 코드 수정 없이 확장 가능 (OCP 원칙)
+
+🔹 Command 패턴의 단점
+❌ 클래스 수 증가 → 요청을 캡슐화하기 위해 많은 ConcreteCommand 클래스가 필요할 수 있음
+❌ 단순한 요청이라면 오버헤드 발생 → 단순한 호출을 캡슐화하면 불필요한 코드 증가
+
+#include <iostream>
+#include <vector>
+#include <memory>
+
+// Command 인터페이스
+class Command {
+public:
+    virtual ~Command() = default;
+    virtual void execute() = 0;
+    virtual void undo() = 0;
+};
+
+// Receiver (실제 작업을 수행하는 객체)
+class Light {
+public:
+    void turnOn() {
+        std::cout << "Light is ON\n";
+    }
+
+    void turnOff() {
+        std::cout << "Light is OFF\n";
+    }
+};
+
+// ConcreteCommand (명령을 수행하는 클래스)
+class LightOnCommand : public Command {
+private:
+    Light& light;
+public:
+    explicit LightOnCommand(Light& l) : light(l) {}
+
+    void execute() override {
+        light.turnOn();
+    }
+
+    void undo() override {
+        light.turnOff();
+    }
+};
+
+class LightOffCommand : public Command {
+private:
+    Light& light;
+public:
+    explicit LightOffCommand(Light& l) : light(l) {}
+
+    void execute() override {
+        light.turnOff();
+    }
+
+    void undo() override {
+        light.turnOn();
+    }
+};
+
+// Invoker (명령을 요청하는 객체)
+class RemoteControl {
+private:
+    std::vector<std::unique_ptr<Command>> history;
+public:
+    void executeCommand(std::unique_ptr<Command> cmd) {
+        cmd->execute();
+        history.push_back(std::move(cmd)); // 실행한 명령을 기록 (Undo 가능)
+    }
+
+    void undoLastCommand() {
+        if (!history.empty()) {
+            history.back()->undo();
+            history.pop_back();
+        }
+    }
+};
+
+// 클라이언트 코드
+int main() {
+    Light light;
+    RemoteControl remote;
+
+    // LightOnCommand 실행
+    remote.executeCommand(std::make_unique<LightOnCommand>(light));
+    // LightOffCommand 실행

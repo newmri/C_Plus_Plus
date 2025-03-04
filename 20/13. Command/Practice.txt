@@ -1,0 +1,37 @@
+struct Command
+{
+  enum Action { deposit, withdraw } action;
+  int amount{0};
+  bool success{false};
+  
+  void call(int& balance)
+  {
+      success = false;
+      switch(action)
+      {
+          case Action::deposit:
+          balance += amount;
+          success = true;
+          break;
+          case Action::withdraw:
+          if(balance >= amount)
+          {
+            balance -= amount;
+            success = true;
+          }
+          break;
+          default:
+         break;
+      }
+  }
+};
+
+struct Account
+{
+  int balance{0};
+
+  void process(Command& cmd)
+  {
+    cmd.call(balance);
+  }
+};
