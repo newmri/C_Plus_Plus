@@ -1,0 +1,95 @@
+#include <vector>
+#include <iostream>
+#include <map>
+#include <string>
+#include <cctype>
+
+using namespace std;
+
+struct ExpressionProcessor
+{
+	map<char, int> variables;
+
+	int calculate(const string& expression)
+	{
+		int number = 0;
+		int result = 0;
+		string prev_op;
+		auto str_vec = split(expression);
+
+		for (int i = 0; i < str_vec.size(); ++i)
+		{
+			if (is_number(str_vec[i], number))
+			{
+				if (0 == i)
+					result = number;
+
+				else
+					result += add(number, prev_op);
+
+				continue;
+			}
+			else if (1 != str_vec[i].size())
+				return 0;
+
+			if ("+" != str_vec[i] && "-" != str_vec[i])
+			{
+				auto iter = variables.find(str_vec[i][0]);
+				if (variables.end() == iter)
+					return 0;
+
+				result += add(iter->second, prev_op);
+			}
+
+			prev_op = str_vec[i];
+		}
+
+		return result;
+	}
+
+	vector<string> split(const string& expression)
+	{
+		vector<string> str_vec;
+
+		size_t find_pos = 0, last_pos = 0;
+		while (string::npos != (find_pos = expression.find_first_of("+-", last_pos)))
+		{
+			auto find_pos = expression.find_first_of("+-", last_pos);
+			str_vec.emplace_back(expression.substr(last_pos, find_pos - last_pos));
+			str_vec.emplace_back(expression.substr(find_pos, 1));
+			last_pos = find_pos + 1;
+		}
+
+		str_vec.emplace_back(expression.substr(last_pos));
+
+		return str_vec;
+	}
+
+	bool is_number(const std::string& str, int& number)
+	{
+		try
+		{
+			number = std::stoi(str);
+			return true;
+		}
+		catch (const std::exception&) {
+			return false;
+		}
+	}
+
+	int add(const int number, const string& op)
+	{
+		if ("-" == op)
+			return -number;
+
+		return number;
+	}
+};
+
+int main()
+{
+	ExpressionProcessor e;
+	e.variables['x'] = 1;
+
+	cout << e.calculate("1-2+10+x") << endl;
+}
