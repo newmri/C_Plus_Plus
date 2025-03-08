@@ -1,0 +1,45 @@
+#include <iostream>
+#include <vector>
+using namespace std;
+
+struct IParticipant
+{
+	virtual void say(int value) = 0;
+	virtual void receieve(IParticipant* from, int value) = 0;
+};
+
+struct Mediator
+{
+	vector<IParticipant*> participants;
+
+	void say(IParticipant* from, int value)
+	{
+		for (auto p : participants)
+			p->receieve(from, value);
+	}
+};
+
+struct Participant : IParticipant
+{
+	int value{ 0 };
+	Mediator& mediator;
+
+	Participant(Mediator& mediator) : mediator(mediator)
+	{
+		mediator.participants.push_back(this);
+	}
+
+	void say(int value)
+	{
+		// todo
+		mediator.say(this, value);
+	}
+
+	void receieve(IParticipant* from, int value)
+	{
+		if (from == this)
+			return;
+
+		this->value += value;
+	}
+};
