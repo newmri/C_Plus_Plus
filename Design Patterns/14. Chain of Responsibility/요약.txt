@@ -1,0 +1,81 @@
+요청을 처리하는 객체들을 체인(연쇄) 형태로 연결
+요청을 해당 객체들이 순차적으로 처리
+
+#include <iostream>
+#include <memory>
+
+// 핸들러의 기본 인터페이스
+class Handler {
+protected:
+    std::shared_ptr<Handler> nextHandler; // 다음 핸들러
+public:
+    virtual ~Handler() = default;
+
+    void setNext(std::shared_ptr<Handler> next) {
+        nextHandler = next;
+    }
+
+    virtual void handleRequest(int request) {
+        if (nextHandler) {
+            nextHandler->handleRequest(request); // 다음 핸들러로 넘김
+        } else {
+            std::cout << "요청을 처리할 핸들러가 없습니다.\n";
+        }
+    }
+};
+
+// 구체적인 핸들러1 (작은 값 처리)
+class ConcreteHandler1 : public Handler {
+public:
+    void handleRequest(int request) override {
+        if (request < 10) {
+            std::cout << "ConcreteHandler1: " << request << " 처리\n";
+        } else if (nextHandler) {
+            nextHandler->handleRequest(request);
+        }
+    }
+};
+
+// 구체적인 핸들러2 (중간 값 처리)
+class ConcreteHandler2 : public Handler {
+public:
+    void handleRequest(int request) override {
+        if (request >= 10 && request < 50) {
+            std::cout << "ConcreteHandler2: " << request << " 처리\n";
+        } else if (nextHandler) {
+            nextHandler->handleRequest(request);
+        }
+    }
+};
+
+// 구체적인 핸들러3 (큰 값 처리)
+class ConcreteHandler3 : public Handler {
+public:
+    void handleRequest(int request) override {
+        if (request >= 50) {
+            std::cout << "ConcreteHandler3: " << request << " 처리\n";
+        } else if (nextHandler) {
+            nextHandler->handleRequest(request);
+        }
+    }
+};
+
+// 클라이언트 코드
+int main() {
+    auto handler1 = std::make_shared<ConcreteHandler1>();
+    auto handler2 = std::make_shared<ConcreteHandler2>();
+    auto handler3 = std::make_shared<ConcreteHandler3>();
+
+    // 체인 연결
+    handler1->setNext(handler2);
+    handler2->setNext(handler3);
+
+    // 다양한 요청 테스트
+    int requests[] = {5, 20, 55, 100, 1};
+    for (int request : requests) {
+        std::cout << "요청: " << request << " → ";
+        handler1->handleRequest(request);
+    }
+
+    return 0;
+}

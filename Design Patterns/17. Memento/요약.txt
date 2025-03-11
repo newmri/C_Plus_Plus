@@ -1,0 +1,84 @@
+객체의 상태를 저장하고 복원할 수 있도록 하는 행동
+주로 "되돌리기(Undo)" 기능을 구현할 때 사용
+
+#include <iostream>
+#include <vector>
+#include <memory>
+
+// Memento 클래스 (Originator의 상태 저장)
+class Memento {
+private:
+    std::string state;
+
+public:
+    Memento(const std::string& state) : state(state) {}
+
+    std::string getState() const {
+        return state;
+    }
+};
+
+// Originator 클래스 (원본 객체)
+class Originator {
+private:
+    std::string state;
+
+public:
+    void setState(const std::string& newState) {
+        state = newState;
+        std::cout << "현재 상태: " << state << std::endl;
+    }
+
+    std::shared_ptr<Memento> saveState() {
+        return std::make_shared<Memento>(state);
+    }
+
+    void restoreState(std::shared_ptr<Memento> memento) {
+        state = memento->getState();
+        std::cout << "복원된 상태: " << state << std::endl;
+    }
+};
+
+// Caretaker 클래스 (Memento를 관리)
+class Caretaker {
+private:
+    std::vector<std::shared_ptr<Memento>> history;
+
+public:
+    void save(std::shared_ptr<Memento> memento) {
+        history.push_back(memento);
+    }
+
+    std::shared_ptr<Memento> undo() {
+        if (!history.empty()) {
+            auto memento = history.back();
+            history.pop_back();
+            return memento;
+        }
+        return nullptr;
+    }
+};
+
+int main() {
+    Originator originator;
+    Caretaker caretaker;
+
+    originator.setState("상태 1");
+    caretaker.save(originator.saveState());
+
+    originator.setState("상태 2");
+    caretaker.save(originator.saveState());
+
+    originator.setState("상태 3");
+
+    std::cout << "되돌리기 실행...\n";
+    if (auto memento = caretaker.undo()) {
+        originator.restoreState(memento);
+    }
+
+    if (auto memento = caretaker.undo()) {
+        originator.restoreState(memento);
+    }
+
+    return 0;
+}
