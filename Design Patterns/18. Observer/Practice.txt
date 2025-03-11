@@ -1,0 +1,61 @@
+#include <iostream>
+#include <vector>
+using namespace std;
+
+struct IRat
+{
+    virtual void enter() = 0;
+    virtual void leave() = 0;
+};
+
+struct Game
+{
+    // todo
+    vector<IRat*> rats;
+    
+    void enter(IRat* rat)
+    {
+        for(const auto& d : rats)
+        {
+            d->enter();
+            rat->enter();
+        }
+        
+        rats.emplace_back(rat);   
+    }
+    
+    void leave(IRat* rat)
+    {
+        rats.erase(std::remove(rats.begin(), rats.end(), rat));
+        
+        for(const auto& d : rats)
+            d->leave();
+    }
+};
+
+struct Rat : IRat
+{
+    Game& game;
+    int attack{1};
+
+    Rat(Game &game) : game(game)
+    {
+      // todo, obviously
+      game.enter(this);
+    }
+
+    ~Rat() 
+    { 
+        game.leave(this);
+    }
+    
+    virtual void enter()
+    {
+        ++attack;
+    }
+    
+    virtual void leave()
+    {
+        --attack;
+    }
+};
