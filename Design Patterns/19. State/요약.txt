@@ -1,0 +1,101 @@
+객체의 상태를 기반으로 행동을 변경 상태를 객체로 분리하여 관리
+
+🎯 State 패턴의 장점
+✅ 조건문을 줄일 수 있음
+
+if-else 또는 switch 문을 줄이고, 상태별 클래스로 동작을 분리.
+✅ 유지보수성과 확장성이 뛰어남
+
+새로운 상태를 추가할 때 기존 코드 수정이 거의 필요 없음.
+✅ 객체의 역할과 책임을 분리
+
+상태 변경이 Context 내부 로직을 건드리지 않고도 가능.
+
+#include <iostream>
+#include <memory>
+
+// 상태 인터페이스
+class DoorState {
+public:
+    virtual ~DoorState() = default;
+    virtual void open() = 0;
+    virtual void close() = 0;
+    virtual void lock() = 0;
+};
+
+// 문맥(Context)
+class Door {
+private:
+    std::shared_ptr<DoorState> state;  // 현재 상태
+
+public:
+    void setState(std::shared_ptr<DoorState> newState) {
+        state = std::move(newState);
+    }
+
+    void open() { state->open(); }
+    void close() { state->close(); }
+    void lock() { state->lock(); }
+};
+
+// 구체적인 상태: 닫힌 상태
+class ClosedState : public DoorState {
+public:
+    void open() override {
+        std::cout << "문이 열렸습니다.\n";
+    }
+    void close() override {
+        std::cout << "문이 이미 닫혀 있습니다.\n";
+    }
+    void lock() override {
+        std::cout << "문이 잠겼습니다.\n";
+    }
+};
+
+// 구체적인 상태: 열린 상태
+class OpenedState : public DoorState {
+public:
+    void open() override {
+        std::cout << "문이 이미 열려 있습니다.\n";
+    }
+    void close() override {
+        std::cout << "문을 닫습니다.\n";
+    }
+    void lock() override {
+        std::cout << "문이 열린 상태에서는 잠글 수 없습니다.\n";
+    }
+};
+
+// 구체적인 상태: 잠긴 상태
+class LockedState : public DoorState {
+public:
+    void open() override {
+        std::cout << "문이 잠겨 있어서 열 수 없습니다.\n";
+    }
+    void close() override {
+        std::cout << "문이 이미 닫혀 있습니다.\n";
+    }
+    void lock() override {
+        std::cout << "문이 이미 잠겨 있습니다.\n";
+    }
+};
+
+// 실행 예제
+int main() {
+    Door door;
+
+    auto closed = std::make_shared<ClosedState>();
+    auto opened = std::make_shared<OpenedState>();
+    auto locked = std::make_shared<LockedState>();
+
+    door.setState(closed);
+    door.open();  // 문이 열렸습니다.
+
+    door.setState(opened);
+    door.lock();  // 문이 열린 상태에서는 잠글 수 없습니다.
+
+    door.setState(locked);
+    door.open();  // 문이 잠겨 있어서 열 수 없습니다.
+
+    return 0;
+}
