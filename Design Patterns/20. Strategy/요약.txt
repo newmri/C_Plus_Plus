@@ -1,0 +1,40 @@
+객체의 행동(알고리즘)을 런타임에 변경할 수 있도록 하는 디자인 패턴
+
+class Strategy {
+public:
+    virtual void execute() const = 0;
+    virtual ~Strategy() = default;
+};
+
+#include <iostream>
+
+class ConcreteStrategyA : public Strategy {
+public:
+    void execute() const override {
+        std::cout << "Strategy A 실행\n";
+    }
+};
+
+class ConcreteStrategyB : public Strategy {
+public:
+    void execute() const override {
+        std::cout << "Strategy B 실행\n";
+    }
+};
+
+class Context {
+private:
+    Strategy* strategy;
+
+public:
+    Context(Strategy* strategy) : strategy(strategy) {}
+
+    void setStrategy(Strategy* newStrategy) {
+        strategy = newStrategy;
+    }
+
+    void executeStrategy() const {
+        if (strategy)
+            strategy->execute();
+    }
+};
