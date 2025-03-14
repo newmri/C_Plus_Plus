@@ -1,0 +1,66 @@
+알고리즘의 골격을 정의하고 일부 세부 구현을 서브클래스에서 결정
+
+#include <iostream>
+
+// Step 1: 추상 클래스 정의
+class AbstractClass {
+public:
+    // Template Method: 알고리즘의 골격을 정의
+    void TemplateMethod() {
+        BaseOperation();
+        RequiredOperation1();
+        RequiredOperation2();
+        Hook(); // 선택적으로 오버라이드 가능
+    }
+
+protected:
+    void BaseOperation() { // 공통적인 기본 동작
+        std::cout << "Base operation: 공통 로직 실행\n";
+    }
+
+    virtual void RequiredOperation1() = 0; // 서브클래스가 구현해야 할 부분
+    virtual void RequiredOperation2() = 0; // 서브클래스가 구현해야 할 부분
+
+    virtual void Hook() {} // 선택적으로 오버라이드할 수 있는 훅
+};
+
+// Step 2: 구체 클래스 구현
+class ConcreteClassA : public AbstractClass {
+protected:
+    void RequiredOperation1() override {
+        std::cout << "ConcreteClassA: RequiredOperation1 실행\n";
+    }
+
+    void RequiredOperation2() override {
+        std::cout << "ConcreteClassA: RequiredOperation2 실행\n";
+    }
+};
+
+class ConcreteClassB : public AbstractClass {
+protected:
+    void RequiredOperation1() override {
+        std::cout << "ConcreteClassB: RequiredOperation1 실행\n";
+    }
+
+    void RequiredOperation2() override {
+        std::cout << "ConcreteClassB: RequiredOperation2 실행\n";
+    }
+
+    void Hook() override {
+        std::cout << "ConcreteClassB: Hook 오버라이드\n";
+    }
+};
+
+// Step 3: 실행
+int main() {
+    ConcreteClassA a;
+    ConcreteClassB b;
+
+    std::cout << "ConcreteClassA 실행:\n";
+    a.TemplateMethod(); // A의 구현 방식으로 실행
+
+    std::cout << "\nConcreteClassB 실행:\n";
+    b.TemplateMethod(); // B의 구현 방식으로 실행
+
+    return 0;
+}
