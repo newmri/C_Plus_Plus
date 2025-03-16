@@ -1,0 +1,84 @@
+객체의 구조를 변경하지 않고 새로운 기능을 추가할 수 있도록 도와주는 행동 디자인 패턴
+
+🔹 Visitor 패턴을 사용할 때의 장점과 단점
+✅ 장점
+1. 기존 클래스를 변경하지 않고 새로운 기능을 추가할 수 있음
+2. 연관된 기능을 Visitor 클래스에 묶어 관심사를 분리할 수 있음
+3. 새로운 연산을 쉽게 추가할 수 있음
+
+❌ 단점
+1. 새로운 Element 클래스를 추가할 때 기존 Visitor 인터페이스도 변경해야 함
+2. Element와 Visitor 간의 강한 결합이 발생할 수 있음
+3. 클래스 계층이 복잡해질 수 있음
+
+#include <iostream>
+#include <vector>
+
+class ConcreteElementA;
+class ConcreteElementB;
+
+// Visitor 인터페이스
+class Visitor {
+public:
+    virtual void visit(ConcreteElementA& element) = 0;
+    virtual void visit(ConcreteElementB& element) = 0;
+    virtual ~Visitor() = default;
+};
+
+// Element 인터페이스
+class Element {
+public:
+    virtual void accept(Visitor& visitor) = 0;
+    virtual ~Element() = default;
+};
+
+// ConcreteElementA 정의
+class ConcreteElementA : public Element {
+public:
+    void accept(Visitor& visitor) override {
+        visitor.visit(*this);  // Visitor가 자신을 방문하도록 요청
+    }
+    void operationA() {
+        std::cout << "ConcreteElementA 작업 수행\n";
+    }
+};
+
+// ConcreteElementB 정의
+class ConcreteElementB : public Element {
+public:
+    void accept(Visitor& visitor) override {
+        visitor.visit(*this);
+    }
+    void operationB() {
+        std::cout << "ConcreteElementB 작업 수행\n";
+    }
+};
+
+// ConcreteVisitor 구현
+class ConcreteVisitor : public Visitor {
+public:
+    void visit(ConcreteElementA& element) override {
+        std::cout << "ConcreteVisitor가 ConcreteElementA 방문\n";
+        element.operationA();
+    }
+    void visit(ConcreteElementB& element) override {
+        std::cout << "ConcreteVisitor가 ConcreteElementB 방문\n";
+        element.operationB();
+    }
+};
+
+// 사용 예제
+int main() {
+    std::vector<Element*> elements = {new ConcreteElementA(), new ConcreteElementB()};
+    ConcreteVisitor visitor;
+
+    for (Element* element : elements) {
+        element->accept(visitor);  // 각 요소가 Visitor를 받아들이도록 함
+    }
+
+    for (Element* element : elements) {
+        delete element;  // 메모리 해제
+    }
+
+    return 0;
+}
