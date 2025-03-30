@@ -1,0 +1,110 @@
+Memory Order
+
+memory_order_relaxed: 순서 보장 없음
+memory_order_consume: 현재 표준에서는 acquire와 동일
+
+memory_order_acquire: 이 연산 이후의 접근이 앞으로 이동하지 않도록 보장
+ while (!flag.load(std::memory_order_acquire));  // flag가 true가 될 때까지 대기
+  int value = data;  // data가 안전하게 보장됨 load 이전으로 역전 안됨
+
+memory_order_release: 이 연산 이전의 접근이 뒤로 이동하지 않도록 보장
+data = 100; // store 이후로 역전 안됨
+ready.store(true, std::memory_order_release);  // `data`가 먼저 저장된 후 `ready`가 설정됨
+
+memory_order_acq_rel: acquire + release 동시 보장
+memory_order_seq_cst: 가장 강력한 순서 보장 (기본값)
+
+성능이 중요한 경우 → memory_order_relaxed (재배치 허용)
+생산자-소비자 패턴 → memory_order_acquire / memory_order_release
+강력한 동기화가 필요할 때 → memory_order_seq_cst
+
+memory_order_relaxed: 아무런 동기화 보장을 하지 않고, 원자적 연산의 순서를 유지하지 않음
+사용 사례: 단순 카운터 증가 등 순서가 중요하지 않은 경우
+
+std::atomic<int> counter{0};
+
+void increment() {
+    counter.fetch_add(1, std::memory_order_relaxed);
+}
+
+
+memory_order_consume: 데이터를 사용하는 스레드에서만 순서를 보장. (memory_order_acquire와 비슷하지만 최적화가 더 가능)
+최신 C++ 표준에서는 사실상 memory_order_acquire와 동일하게 취급
+
+std::atomic<int*> ptr{nullptr};
+int data;
+
+void producer() {
+    data = 42;
+    ptr.store(&data, std::memory_order_release);
+}
+
+void consumer() {
+    int* p = ptr.load(std::memory_order_consume);
+    if (p) {
+        int value = *p;  // 안전하게 읽힘
+    }
+}
+
+memory_order_acquire: 이후의 메모리 접근들이 원자적 연산 이전의 쓰기 연산을 볼 수 있도록 보장
+사용 사례: 플래그를 읽고 이후 연산이 안전하게 이루어지도록 할 때
+
+std::atomic<bool> flag{false};
+int data;
+
+void producer() {
+    data = 42;
+    flag.store(true, std::memory_order_release);
+}
+
+void consumer() {
+    while (!flag.load(std::memory_order_acquire));  // flag가 true가 될 때까지 대기
+    int value = data;  // data가 안전하게 보장됨
+}
+
+memory_order_release: 이전의 모든 메모리 연산들이 원자적 연산 이후에 실행되도록 보장
+사용 사례: 데이터를 안전하게 기록한 후 플래그를 설정할 때
+
+std::atomic<bool> ready{false};
+int data;
+
+void producer() {
+    data = 100;
+    ready.store(true, std::memory_order_release);  // `data`가 먼저 저장된 후 `ready`가 설정됨
+}
+
+void consumer() {
+    while (!ready.load(std::memory_order_acquire));  // `ready`가 true가 될 때까지 대기
+    int value = data;  // `data`는 올바른 값이어야 함
+}
+
+memory_order_acq_rel: memory_order_acquire와 memory_order_release를 동시에 적용
+사용 사례: 원자적으로 값을 읽고 수정하는 경우
+
+std::atomic<int> value{0};
+
+void thread1() {
+    value.fetch_add(1, std::memory_order_acq_rel);  // 읽고 수정하는 연산
+}
+
+void thread2() {
+    int v = value.load(std::memory_order_acquire);
+}
+
+memory_order_seq_cst:  가장 강력한 순서 보장. 모든 원자적 연산을 단일 총순서(global order)로 유지
+사용 사례: 가장 쉬운 동기화 보장 방식이지만 성능이 느릴 수 있음
+
+std::atomic<int> x{0};
+
+void thread1() {
+    x.store(10, std::memory_order_seq_cst);
+}
+
+void thread2() {
+    int v = x.load(std::memory_order_seq_cst);
+}
+
+
+
+
+
