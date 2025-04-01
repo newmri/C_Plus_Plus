@@ -1,0 +1,97 @@
+Lock free stack은 ABA 문제 발생 가능
+
+해결 방법
+
+1. Thread Counting
+설명: 현재 몇 개의 쓰레드가 스택에 접근하는지 추적하여, 안전한 메모리 해제 시점을 결정
+std::atomic<int>을 사용하여 active thread 수를 관리
+
+삭제 작업 전에 active_threads == 0인지 확인 후 메모리 해제
+
+std::atomic<int> active_threads{0};
+
+void thread_func(LockFreeStack<int>& stack) {
+    active_threads.fetch_add(1, std::memory_order_relaxed);
+    
+    int value;
+    if (stack.pop(value)) {
+        std::cout << "Popped: " << value << std::endl;
+    }
+
+    active_threads.fetch_sub(1, std::memory_order_relaxed);
+}
+
+// 삭제 작업 시
+if (active_threads.load(std::memory_order_acquire) == 0) {
+    delete_safe_nodes(); // 안전한 노드 삭제
+}
+
+2. Hazard Pointer
+설명: Pop 연산 중 삭제된 노드를 다른 쓰레드가 사용하지 않도록 보호
+각 쓰레드는 스택에서 가져온 Node*를 Hazard Pointer 배열에 저장
+
+메모리 해제 전에 다른 쓰레드가 해당 노드를 참조 중인지 확인
+
+참조 중이면 삭제 연기
+
+#include <array>
+#include <atomic>
+
+const int MAX_THREADS = 16;
+std::array<std::atomic<Node*>, MAX_THREADS> hazard_pointers;
+
+void set_hazard_pointer(int thread_id, Node* ptr) {
+    hazard_pointers[thread_id].store(ptr, std::memory_order_release);
+}
+
+bool is_hazard_pointer(Node* ptr) {
+    for (auto& hp : hazard_pointers) {
+        if (hp.load(std::memory_order_acquire) == ptr)
+            return true;
+    }
+    return false;
+}
+
+void safe_delete(Node* node) {
+    if (!is_hazard_pointer(node)) {
+        delete node;
+    }
+}
+
+3. Atomic Reference Counting
+설명: Pop 연산에서 참조 중인 노드가 완전히 해제되지 않도록 보호, 노드가 다른 쓰레드에서 참조 중이면 삭제 연기
+
+각 Node에 std::atomic<int> ref_count를 추가
+
+Pop 시 ref_count를 증가하여 사용 중임을 표시
+
+마지막 참조가 해제될 때 노드 삭제
+
+struct Node {
+    int data;
+    std::atomic<int> ref_count;
+    Node* next;
+
+    Node(int val) : data(val), ref_count(1), next(nullptr) {}
+};
+
+void release(Node* node) {
+    if (node->ref_count.fetch_sub(1, std::memory_order_acq_rel) == 1) {
+        delete node;
+    }
+}
+
+bool pop(LockFreeStack<int>& stack, int& result) {
+    Node* old_head;
+    do {
+        old_head = stack.head.load(std::memory_order_acquire);
+        if (!old_head) return false;
+        old_head->ref_count.fetch_add(1, std::memory_order_relaxed);
+    } while (!stack.head.compare_exchange_weak(old_head, old_head->next,
+                                               std::memory_order_release,
+                                               std::memory_order_relaxed));
+
+    result = old_head->data;
+    release(old_head);
+    return true;
+}
